@@ -10,6 +10,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import cafebazar.challenge.cafebazar.api.MyApiEndpointInterface;
+import cafebazar.challenge.cafebazar.model.User;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class MainActivity extends AppCompatActivity {
 
     WebView myWebView;
@@ -17,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
 
     String username;
     String password;
+
+    public static final String BASE_URL = "https://www.Imageplus.ir/api/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
                 callJavaScriptFunctionAndGetResultBack();
             }
         });
+
+
+        sendDataToApi(username,password);
     }
 
 
@@ -68,4 +84,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
+    public void sendDataToApi(String username,String password){
+        Gson gson = new GsonBuilder()
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
+                .create();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        MyApiEndpointInterface apiService =
+                retrofit.create(MyApiEndpointInterface.class);
+
+        User user = new User("tk2lQ6QomkqfdLiHBPQVw", "10");
+        Call<User> call = apiService.createUser(user);
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                Log.e("qqqq", response.toString());
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.e("qqqq", "aaaa");
+            }
+        });
+    }
+
 }
